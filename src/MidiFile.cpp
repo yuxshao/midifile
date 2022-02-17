@@ -2528,7 +2528,7 @@ double MidiFile::linearTickInterpolationAtSecond(double seconds) {
 	// Guess which side of the list is closest to target:
 	// Could do a more efficient algorithm since time values are sorted,
 	// but good enough for now...
-	int startindex = -1;
+	int startindex = -1; // Last index with seconds < target seconds
 	if (seconds < lasttime / 2) {
 		for (i=0; i<(int)m_timemap.size(); i++) {
 			if (m_timemap[i].seconds > seconds) {
@@ -2541,10 +2541,7 @@ double MidiFile::linearTickInterpolationAtSecond(double seconds) {
 		}
 	} else {
 		for (i=(int)m_timemap.size()-1; i>0; i--) {
-			if (m_timemap[i].seconds < seconds) {
-				startindex = i+1;
-				break;
-			} else if (m_timemap[i].seconds == seconds) {
+			if (m_timemap[i].seconds <= seconds) {
 				startindex = i;
 				break;
 			}
@@ -2552,7 +2549,7 @@ double MidiFile::linearTickInterpolationAtSecond(double seconds) {
 	}
 
 	if (startindex < 0) {
-		return -1.0;
+		return seconds * m_timemap[0].tick / m_timemap[0].seconds;
 	}
 	if (startindex >= (int)m_timemap.size()-1) {
 		return -1.0;
